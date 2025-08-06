@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Análise de Notas</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, button { margin: 5px; }
+    .aluno-input { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Análise de Notas dos Alunos</h2>
+
+  <label>Quantos alunos? </label>
+  <input type="number" id="quantidade" min="1">
+  <button onclick="criarCampos()">Criar Campos</button>
+
+  <form id="formulario"></form>
+
+  <button onclick="analisar()">Analisar Notas</button>
+
+  <div id="resultado"></div>
+
+  <script>
+    function criarCampos() {
+      const qtd = parseInt(document.getElementById('quantidade').value);
+      const form = document.getElementById('formulario');
+      form.innerHTML = '';
+
+      for (let i = 0; i < qtd; i++) {
+        const div = document.createElement('div');
+        div.className = 'aluno-input';
+        div.innerHTML = `
+          <input type="text" placeholder="Nome do aluno ${i + 1}" name="nome">
+          <input type="number" placeholder="Nota" name="nota" min="0" max="10" step="0.1">
+        `;
+        form.appendChild(div);
+      }
+    }
+
+    function analisar() {
+      const nomes = Array.from(document.getElementsByName('nome')).map(i => i.value);
+      const notas = Array.from(document.getElementsByName('nota')).map(i => parseFloat(i.value));
+
+      const media = (notas.reduce((a, b) => a + b, 0)) / notas.length;
+      const acimaMedia = notas.filter(n => n > media).length;
+      const acima7 = notas.filter(n => n > 7).length;
+      const percentualAcima7 = (acima7 / notas.length) * 100;
+      const aprovados = notas.filter(n => n >= 6).length;
+
+      const maiorNota = Math.max(...notas);
+      const menorNota = Math.min(...notas);
+      const alunoMaior = nomes[notas.indexOf(maiorNota)];
+      const alunoMenor = nomes[notas.indexOf(menorNota)];
+
+      // desvio padrão
+      const variancia = notas.reduce((acc, nota) => acc + Math.pow(nota - media, 2), 0) / notas.length;
+      const desvioPadrao = Math.sqrt(variancia);
+
+      const resultado = `
+        <p>Média da turma: <b>${media.toFixed(2)}</b></p>
+        <p>Alunos com nota acima da média: <b>${acimaMedia}</b></p>
+        <p>Porcentagem com nota > 7: <b>${percentualAcima7.toFixed(1)}%</b></p>
+        <p>Alunos aprovados (nota ≥ 6): <b>${aprovados}</b></p>
+        <p>Desvio padrão: <b>${desvioPadrao.toFixed(2)}</b></p>
+        <p>Maior nota: <b>${maiorNota}</b> (Aluno: ${alunoMaior})</p>
+        <p>Menor nota: <b>${menorNota}</b> (Aluno: ${alunoMenor})</p>
+      `;
+
+      document.getElementById('resultado').innerHTML = resultado;
+    }
+  </script>
+</body>
+</html>
